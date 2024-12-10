@@ -1,0 +1,89 @@
+/* Global styling */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f7fc;
+  color: #333;
+}
+
+/* Main app container */
+.app {
+  width: 80%;
+  margin: 30px auto;
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 30px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Heading */
+h1 {
+  font-size: 2rem;
+  text-align: center;
+  color: #007bff;
+  margin-bottom: 20px;
+}
+
+/* Label styles */
+label {
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #555;
+  display: block;
+}
+
+/* Input and select box styles */
+input,
+select {
+  width: 100%;
+  padding: 12px 15px;
+  margin-bottom: 20px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+input:focus,
+select:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Button styling */
+button {
+  background-color: #007bff;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 6px;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 10px;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+/* Responsive design */
+@media (min-width: 768px) {
+  .app {
+    width: 60%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .app {
+    width: 50%;
+  }
+}
