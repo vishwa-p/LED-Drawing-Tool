@@ -69,13 +69,65 @@ const App = () => {
   //   // Save the PDF
   //   doc.save('Installation_Diagram.pdf');
   // };
+  // const handleDownloadPDF = () => {
+  //   const doc = new jsPDF();
+  
+  //   // Title of the document
+  //   doc.text('LED Installation Diagram', 20, 20);
+  
+  //   // Add user input data to the PDF
+  //   doc.text(`Project Title: ${projectTitle}`, 20, 30);
+  //   doc.text(`Designer’s Name: ${designerName}`, 20, 40);
+  //   doc.text(`Department: ${department}`, 20, 50);
+  //   doc.text(`Screen Size: ${screenSize}`, 20, 60);
+  //   doc.text(`Screen Model: ${screenModel}`, 20, 70);
+  //   doc.text(`Mount Type: ${mountType}`, 20, 80);
+  //   doc.text(`Media Player: ${mediaPlayer}`, 20, 90);
+  //   doc.text(`Receptacle Box: ${receptacleBox}`, 20, 100);
+  //   doc.text(`Distance from Floor to Screen Center: ${distanceToFloor} cm`, 20, 110);
+  //   doc.text(`Niche Depth: ${nicheDepth} cm`, 20, 120);
+  //   doc.text(`Date: ${date}`, 20, 130);
+  
+  //   // Diagram section (screen, mount, media player, etc.)
+  //   const xStart = 20;
+  //   const yStart = 140;
+  
+  //   // Draw the LED screen (represented as a rectangle for simplicity)
+  //   const screenWidth = screenSize * 2; // Adjust dynamically based on screen size
+  //   const screenHeight = 120; // Fixed height for the screen
+  //   doc.rect(xStart, yStart, screenWidth, screenHeight); // Draw the screen rectangle
+  //   doc.text('LED Screen', xStart + screenWidth / 2 - 20, yStart + screenHeight / 2); // Label the screen
+  
+  //   // Draw the media player (represented as a smaller rectangle)
+  //   const mediaPlayerWidth = 40; // Sample width for the media player
+  //   const mediaPlayerHeight = 40; // Sample height for the media player
+  //   doc.rect(xStart + screenWidth - mediaPlayerWidth - 10, yStart + screenHeight + 10, mediaPlayerWidth, mediaPlayerHeight); // Draw media player
+  //   doc.text('Media Player', xStart + screenWidth - mediaPlayerWidth / 2 - 10, yStart + screenHeight + 25); // Label media player
+  
+  //   // Draw the receptacle box (represented as a dashed rectangle)
+  //   const receptacleBoxWidth = 30; // Sample width for the receptacle box
+  //   const receptacleBoxHeight = 30; // Sample height for the receptacle box
+  //   doc.setLineWidth(1);
+  //   doc.setLineDash([5, 5]); // Dashed lines for receptacle box
+  //   doc.rect(xStart + screenWidth / 2 - receptacleBoxWidth / 2, yStart + screenHeight + 60, receptacleBoxWidth, receptacleBoxHeight); // Draw receptacle box
+  //   doc.text('Receptacle Box', xStart + screenWidth / 2 - receptacleBoxWidth / 2, yStart + screenHeight + 75); // Label receptacle box
+  //   doc.setLineDash([]); // Reset dashed line style
+  
+  //   // Add distance label (for distance from floor to screen center)
+  //   doc.text(`Distance from Floor to Screen Center: ${distanceToFloor} cm`, xStart, yStart + screenHeight + 90);
+  
+  //   // Optional: Add additional elements such as niche depth or toggle between horizontal/vertical orientation
+  
+  //   // Save the generated PDF
+  //   doc.save('Installation_Diagram.pdf');
+  // };
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
   
     // Title of the document
     doc.text('LED Installation Diagram', 20, 20);
   
-    // Add user input data to the PDF
+    // Add user input data
     doc.text(`Project Title: ${projectTitle}`, 20, 30);
     doc.text(`Designer’s Name: ${designerName}`, 20, 40);
     doc.text(`Department: ${department}`, 20, 50);
@@ -88,39 +140,34 @@ const App = () => {
     doc.text(`Niche Depth: ${nicheDepth} cm`, 20, 120);
     doc.text(`Date: ${date}`, 20, 130);
   
-    // Diagram section (screen, mount, media player, etc.)
+    // Diagram section
     const xStart = 20;
     const yStart = 140;
   
-    // Draw the LED screen (represented as a rectangle for simplicity)
-    const screenWidth = screenSize * 2; // Adjust dynamically based on screen size
-    const screenHeight = 120; // Fixed height for the screen
-    doc.rect(xStart, yStart, screenWidth, screenHeight); // Draw the screen rectangle
-    doc.text('LED Screen', xStart + screenWidth / 2 - 20, yStart + screenHeight / 2); // Label the screen
+    // Draw the LED screen
+    const screenWidth = screenSize ? parseInt(screenSize) * 2 : 100; // Dynamic width
+    const screenHeight = 120; // Fixed height
+    doc.rect(xStart, yStart, screenWidth, screenHeight);
+    doc.text('LED Screen', xStart + screenWidth / 2 - 20, yStart + screenHeight / 2);
   
-    // Draw the media player (represented as a smaller rectangle)
-    const mediaPlayerWidth = 40; // Sample width for the media player
-    const mediaPlayerHeight = 40; // Sample height for the media player
-    doc.rect(xStart + screenWidth - mediaPlayerWidth - 10, yStart + screenHeight + 10, mediaPlayerWidth, mediaPlayerHeight); // Draw media player
-    doc.text('Media Player', xStart + screenWidth - mediaPlayerWidth / 2 - 10, yStart + screenHeight + 25); // Label media player
+    // Draw the media player
+    const mediaPlayerWidth = mediaPlayer ? 40 : 30; // Dynamic width if mediaPlayer is selected
+    const mediaPlayerHeight = mediaPlayer ? 40 : 30; // Dynamic height
+    doc.rect(xStart + screenWidth - mediaPlayerWidth - 10, yStart + screenHeight + 10, mediaPlayerWidth, mediaPlayerHeight);
+    doc.text(mediaPlayer || 'Media Player', xStart + screenWidth - mediaPlayerWidth / 2 - 10, yStart + screenHeight + 25);
   
-    // Draw the receptacle box (represented as a dashed rectangle)
-    const receptacleBoxWidth = 30; // Sample width for the receptacle box
-    const receptacleBoxHeight = 30; // Sample height for the receptacle box
-    doc.setLineWidth(1);
-    doc.setLineDash([5, 5]); // Dashed lines for receptacle box
-    doc.rect(xStart + screenWidth / 2 - receptacleBoxWidth / 2, yStart + screenHeight + 60, receptacleBoxWidth, receptacleBoxHeight); // Draw receptacle box
-    doc.text('Receptacle Box', xStart + screenWidth / 2 - receptacleBoxWidth / 2, yStart + screenHeight + 75); // Label receptacle box
-    doc.setLineDash([]); // Reset dashed line style
+    // Draw the receptacle box
+    const receptacleBoxWidth = receptacleBox ? 30 : 20; // Dynamic width
+    const receptacleBoxHeight = receptacleBox ? 30 : 20; // Dynamic height
+    doc.setLineDash([5, 5]);
+    doc.rect(xStart + screenWidth / 2 - receptacleBoxWidth / 2, yStart + screenHeight + 60, receptacleBoxWidth, receptacleBoxHeight);
+    doc.text(receptacleBox || 'Receptacle Box', xStart + screenWidth / 2 - receptacleBoxWidth / 2, yStart + screenHeight + 75);
+    doc.setLineDash([]);
   
-    // Add distance label (for distance from floor to screen center)
-    doc.text(`Distance from Floor to Screen Center: ${distanceToFloor} cm`, xStart, yStart + screenHeight + 90);
-  
-    // Optional: Add additional elements such as niche depth or toggle between horizontal/vertical orientation
-  
-    // Save the generated PDF
+    // Save the PDF
     doc.save('Installation_Diagram.pdf');
   };
+  
   
 
   const uniqueMediaPlayers = [
