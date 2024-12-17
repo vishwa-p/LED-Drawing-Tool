@@ -84,90 +84,154 @@ const App = () => {
     fetchData();
   }, []);
 
-  const handleDownloadPDF = () => {
-    const doc = new jsPDF();
+  // const handleDownloadPDF = () => {
+  //   const doc = new jsPDF();
 
-    // Title of the document
-    doc.text("LED Installation Diagram", 20, 20);
+  //   // Title of the document
+  //   doc.text("LED Installation Diagram", 20, 20);
 
-    // Add user input data
-    doc.text(`Project Title: ${projectTitle}`, 20, 30);
-    doc.text(`Designer’s Name: ${designerName}`, 20, 40);
-    doc.text(`Department: ${department}`, 20, 50);
-    doc.text(`Screen Size: ${screenSize}`, 20, 60);
-    doc.text(`Screen Model: ${screenModel}`, 20, 70);
-    doc.text(`Mount Type: ${mountType}`, 20, 80);
-    doc.text(`Media Player: ${mediaPlayer}`, 20, 90);
-    doc.text(`Receptacle Box: ${receptacleBox}`, 20, 100);
-    doc.text(
-      `Distance from Floor to Screen Center: ${distanceToFloor} cm`,
-      20,
-      110
-    );
-    doc.text(`Niche Depth: ${nicheDepth} cm`, 20, 120);
-    doc.text(`Date: ${date}`, 20, 130);
+  //   // Add user input data
+  //   doc.text(`Project Title: ${projectTitle}`, 20, 30);
+  //   doc.text(`Designer’s Name: ${designerName}`, 20, 40);
+  //   doc.text(`Department: ${department}`, 20, 50);
+  //   doc.text(`Screen Size: ${screenSize}`, 20, 60);
+  //   doc.text(`Screen Model: ${screenModel}`, 20, 70);
+  //   doc.text(`Mount Type: ${mountType}`, 20, 80);
+  //   doc.text(`Media Player: ${mediaPlayer}`, 20, 90);
+  //   doc.text(`Receptacle Box: ${receptacleBox}`, 20, 100);
+  //   doc.text(
+  //     `Distance from Floor to Screen Center: ${distanceToFloor} cm`,
+  //     20,
+  //     110
+  //   );
+  //   doc.text(`Niche Depth: ${nicheDepth} cm`, 20, 120);
+  //   doc.text(`Date: ${date}`, 20, 130);
 
-    // Diagram section
-    const xStart = 20;
-    const yStart = 140;
+  //   // Diagram section
+  //   const xStart = 20;
+  //   const yStart = 140;
 
-    // Draw the LED screen
-    const screenWidth = screenSize ? parseInt(screenSize) * 2 : 100; // Dynamic width
-    const screenHeight = 120; // Fixed height
-    doc.rect(xStart, yStart, screenWidth, screenHeight);
-    doc.text(
-      "LED Screen",
-      xStart + screenWidth / 2 - 20,
-      yStart + screenHeight / 2
-    );
+  //   // Draw the LED screen
+  //   const screenWidth = screenSize ? parseInt(screenSize) * 2 : 100; // Dynamic width
+  //   const screenHeight = 120; // Fixed height
+  //   doc.rect(xStart, yStart, screenWidth, screenHeight);
+  //   doc.text(
+  //     "LED Screen",
+  //     xStart + screenWidth / 2 - 20,
+  //     yStart + screenHeight / 2
+  //   );
 
-    // Draw the media player
-    const mediaPlayerWidth = mediaPlayer ? 40 : 30; // Dynamic width if mediaPlayer is selected
-    const mediaPlayerHeight = mediaPlayer ? 40 : 30; // Dynamic height
-    doc.rect(
-      xStart + screenWidth - mediaPlayerWidth - 10,
-      yStart + screenHeight + 10,
-      mediaPlayerWidth,
-      mediaPlayerHeight
-    );
-    doc.text(
-      mediaPlayer || "Media Player",
-      xStart + screenWidth - mediaPlayerWidth / 2 - 10,
-      yStart + screenHeight + 25
-    );
+  //   // Draw the media player
+  //   const mediaPlayerWidth = mediaPlayer ? 40 : 30; // Dynamic width if mediaPlayer is selected
+  //   const mediaPlayerHeight = mediaPlayer ? 40 : 30; // Dynamic height
+  //   doc.rect(
+  //     xStart + screenWidth - mediaPlayerWidth - 10,
+  //     yStart + screenHeight + 10,
+  //     mediaPlayerWidth,
+  //     mediaPlayerHeight
+  //   );
+  //   doc.text(
+  //     mediaPlayer || "Media Player",
+  //     xStart + screenWidth - mediaPlayerWidth / 2 - 10,
+  //     yStart + screenHeight + 25
+  //   );
 
-    // Draw the receptacle box
-    const receptacleBoxWidth = receptacleBox ? 30 : 20; // Dynamic width
-    const receptacleBoxHeight = receptacleBox ? 30 : 20; // Dynamic height
-    doc.setLineDash([5, 5]);
-    doc.rect(
-      xStart + screenWidth / 2 - receptacleBoxWidth / 2,
-      yStart + screenHeight + 60,
-      receptacleBoxWidth,
-      receptacleBoxHeight
-    );
-    doc.text(
-      receptacleBox || "Receptacle Box",
-      xStart + screenWidth / 2 - receptacleBoxWidth / 2,
-      yStart + screenHeight + 75
-    );
-    doc.setLineDash([]);
+  //   // Draw the receptacle box
+  //   const receptacleBoxWidth = receptacleBox ? 30 : 20; // Dynamic width
+  //   const receptacleBoxHeight = receptacleBox ? 30 : 20; // Dynamic height
+  //   doc.setLineDash([5, 5]);
+  //   doc.rect(
+  //     xStart + screenWidth / 2 - receptacleBoxWidth / 2,
+  //     yStart + screenHeight + 60,
+  //     receptacleBoxWidth,
+  //     receptacleBoxHeight
+  //   );
+  //   doc.text(
+  //     receptacleBox || "Receptacle Box",
+  //     xStart + screenWidth / 2 - receptacleBoxWidth / 2,
+  //     yStart + screenHeight + 75
+  //   );
+  //   doc.setLineDash([]);
 
-    // Save the PDF
-    doc.save("Installation_Diagram.pdf");
+  //   // Save the PDF
+  //   doc.save("Installation_Diagram.pdf");
+  // };
+
+const handleDownloadPDF = async () => {
+  const pdf = new jsPDF();
+
+  // Collect all input values
+  const data = {
+    screenModel,
+    mountType,
+    mediaPlayer,
+    receptacleBox,
+    distanceToFloor,
+    nicheDepth,
+    projectTitle,
+    designerName,
+    department,
+    screenSize,
+    date,
+    orientation,
+    wallType,
   };
+
+  // Draw diagram on canvas
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+
+  const screenWidth = parseInt(screenSize) || 55; // Assume default 55 if not set
+  const gap = screenWidth <= 55 ? 1.5 : 2;
+
+  canvas.width = 400;
+  canvas.height = 300;
+
+  // Outer box (niche)
+  context.strokeStyle = "#000";
+  context.lineWidth = 2;
+  context.strokeRect(50, 50, 300, 200);
+
+  // Inner box (screen)
+  const innerBoxWidth = 300 - gap * 2 * 10;
+  const innerBoxHeight = 200 - gap * 2 * 10;
+  context.strokeRect(50 + gap * 10, 50 + gap * 10, innerBoxWidth, innerBoxHeight);
+
+  // Dashed power outlet location
+  context.setLineDash([5, 5]);
+  context.strokeRect(200, 200, 50, 30);
+
+  // Add labels for measurements
+  context.setLineDash([]);
+  context.font = "12px Arial";
+  context.fillText("Outer Width: 300px", 50, 45);
+  context.fillText(`Gap: ${gap}in`, 50, 270);
+  context.fillText("Inner Width: " + innerBoxWidth + "px", 50 + gap * 10, 45 + gap * 10);
+  context.fillText("Distance to Floor: " + distanceToFloor, 50, 290);
+
+  // Convert canvas to image and add to PDF
+  const canvasImage = canvas.toDataURL("image/png");
+  pdf.addImage(canvasImage, "PNG", 10, 10, 180, 120);
+
+  // Add input values to PDF
+  pdf.setFontSize(12);
+  let yOffset = 140;
+  for (const [key, value] of Object.entries(data)) {
+    pdf.text(`${key}: ${value || "N/A"}`, 10, yOffset);
+    yOffset += 10;
+  }
+
+  // Download the PDF
+  pdf.save("configuration.pdf");
+};
+
+
 
   const uniqueMediaPlayers = [
     ...new Set(mediaPlayerData.map((item) => item["MFGPART"])),
   ];
 
-  const listStyle = {
-    border: "1px solid #ddd",
-    padding: "5px",
-    marginBottom: "5px",
-    textAlign: "center",
-    backgroundColor: "#fff",
-  };
+ 
   
 
   return (
