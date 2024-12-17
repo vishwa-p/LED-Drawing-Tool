@@ -270,145 +270,8 @@ const App = () => {
   return (
     <div className="container">
       <div className="large-box" style={{ display: "flex", gap: "20px" }}>
-        <div style={{ flex: 2, border: "1px solid black", padding: "10px" }}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 600 400"
-            style={{ width: "100%", height: "auto" }}
-          >
-            {/* Outer solid rectangle */}
-            <rect
-              x="50"
-              y="50"
-              width="500"
-              height="300"
-              stroke="black"
-              fill="none"
-              strokeWidth="2"
-            />
-
-            {/* Inner dashed rectangle (niche box) */}
-            <rect
-              x="75"
-              y="75"
-              width="450"
-              height="250"
-              stroke="black"
-              fill="none"
-              strokeDasharray="4 4"
-            />
-
-            {/* Small dashed rectangle for "recessed receptacle box" */}
-            <rect
-              x="275"
-              y="175"
-              width="50"
-              height="50"
-              stroke="black"
-              fill="none"
-              strokeDasharray="2 2"
-            />
-
-            {/* Lines and Labels */}
-            {/* Vertical center line */}
-            <line
-              x1="300"
-              y1="50"
-              x2="300"
-              y2="350"
-              stroke="black"
-              strokeDasharray="2 2"
-            />
-
-            {/* Horizontal center line */}
-            <line
-              x1="50"
-              y1="200"
-              x2="550"
-              y2="200"
-              stroke="black"
-              strokeDasharray="2 2"
-            />
-
-            {/* Horizontal dimension - Top */}
-            <line x1="50" y1="40" x2="550" y2="40" stroke="black" />
-            <text x="295" y="30" fontSize="12" fill="black">
-              48.5"
-            </text>
-
-            {/* Vertical dimension - Left */}
-            <line x1="40" y1="50" x2="40" y2="350" stroke="black" />
-            <text
-              x="30"
-              y="200"
-              fontSize="12"
-              fill="black"
-              transform="rotate(-90, 30, 200)"
-            >
-              30.5"
-            </text>
-
-            {/* Horizontal dimension - Bottom */}
-            <line x1="50" y1="360" x2="550" y2="360" stroke="black" />
-            <text x="295" y="375" fontSize="12" fill="black">
-              51"
-            </text>
-
-            {/* Vertical dimension - Right */}
-            <line x1="560" y1="50" x2="560" y2="350" stroke="black" />
-            <text
-              x="570"
-              y="200"
-              fontSize="12"
-              fill="black"
-              transform="rotate(-90, 570, 200)"
-            >
-              50"
-            </text>
-
-            {/* Arrow line 1 - Intended Screen Position */}
-            <line
-              x1="300"
-              y1="200"
-              x2="450"
-              y2="100"
-              stroke="black"
-              strokeWidth="1"
-              markerEnd="url(#arrow)"
-            />
-            <text x="460" y="95" fontSize="12" fill="black">
-              Intended Screen Position
-            </text>
-
-            {/* Arrow line 2 - Install Recessed Box */}
-            <line
-              x1="300"
-              y1="200"
-              x2="200"
-              y2="300"
-              stroke="black"
-              strokeWidth="1"
-              markerEnd="url(#arrow)"
-            />
-            <text x="110" y="310" fontSize="12" fill="black">
-              Install recessed receptacle box
-            </text>
-
-            {/* Arrowhead marker definition */}
-            <defs>
-              <marker
-                id="arrow"
-                markerWidth="10"
-                markerHeight="10"
-                refX="5"
-                refY="5"
-                orient="auto"
-                markerUnits="strokeWidth"
-              >
-                <path d="M0,0 L10,5 L0,10 Z" fill="black" />
-              </marker>
-            </defs>
-          </svg>
+        <div className="Diagram" style={{ flex: 2, border: "1px solid black", padding: "10px" }}>
+          <canvas ref={canvasRef} width={500} height={700} />
         </div>
 
         <div
@@ -828,13 +691,14 @@ const App = () => {
                     style={{
                       width: "30px",
                       height: "30px",
-                      border: "2px solid #333",
+                      // border: "2px solid #333",
                       borderRadius: "50%",
                       margin: "0 auto",
                       position: "relative",
+                      
                     }}
                   >
-                    <div
+                    {/* <div
                       style={{
                         position: "absolute",
                         width: "50%",
@@ -844,7 +708,7 @@ const App = () => {
                         left: "0",
                         transform: "translateY(-50%)",
                       }}
-                    ></div>
+                    ></div> */}
                   </div>
                 </div>
                 <div
