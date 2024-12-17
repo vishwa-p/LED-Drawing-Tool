@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef  } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import jsPDF from "jspdf";
 import Papa from "papaparse";
@@ -10,25 +10,30 @@ import logoimg from "./assets/logo_web-1.png";
 const App = () => {
   // State variables
   const canvasRef = useRef(null);
-  const [screenDimensions, setScreenDimensions] = useState({ width: 50, height: 30, depth: 5 });
-  const [gap, setGap] = useState(1.5);
+  const [screenDimensions, setScreenDimensions] = useState({
+    width: 50,
+    height: 30,
+    depth: 5,
+  });
+  const [gap, setGap] = useState(2);
   const [screenModel, setScreenModel] = useState("");
   const [mountType, setMountType] = useState("");
   const [mediaPlayer, setMediaPlayer] = useState("");
   const [receptacleBox, setReceptacleBox] = useState("");
-  // const [distanceToFloor, setDistanceToFloor] = useState("");
-  // const [nicheDepth, setNicheDepth] = useState("");
+ 
   const [projectTitle, setProjectTitle] = useState("");
+  const [screenDepth, setScreenDepth] = useState(3); // Default screen depth
   const [designerName, setDesignerName] = useState("");
   const [department, setDepartment] = useState("");
   const [screenSize, setScreenSize] = useState(55);
   const [floorDistance, setFloorDistance] = useState(50);
-  const [nicheDepth, setNicheDepth] = useState(0);
+  const [nicheDepth, setNicheDepth] = useState(0.5);
   const [date, setDate] = useState("");
-  const [mediaPlayerDepth, setMediaPlayerDepth] = useState(2);
-  const [mountDepth, setMountDepth] = useState(4);
+  const [mediaPlayerDepth, setMediaPlayerDepth] = useState(3);
+  const [mountDepth, setMountDepth] = useState(2);
   const nicheDepthVar = screenSize > 55 ? 2 : 1.5;
-  const calculatedNicheDepth = nicheDepth + nicheDepthVar;
+  // const calculatedNicheDepth = nicheDepth + nicheDepthVar;
+  const [depthVariance, setDepthVariance] = useState(0.5); // Default for under 55"
   const [isCanvasReady, setIsCanvasReady] = useState(false); // Flag to check if the canvas is ready
 
   // State to hold parsed data from each API
@@ -37,9 +42,19 @@ const App = () => {
   const [mediaPlayerData, setMediaPlayerData] = useState([]);
   const [receptacleBoxData, setReceptacleBoxData] = useState([]);
   const [orientation, setOrientation] = useState("Vertical"); // Default to Vertical
-  const [wallType, setWallType] = useState("Niche"); // Default to Niche
+  const [wallType, setWallType] = useState("Flat Wall"); // Default to Flat Wall
 
- 
+  // const calculatedNicheDepth = screenSize > 55 ? 2 : 1.5; // Default to 1.5" or 2" based on screen size
+
+  const nicheAdjustment =
+    screenDepth + Math.max(mediaPlayerDepth, mountDepth) + depthVariance;
+
+  const calculatedNicheDepth =
+    Number(screenDepth) +
+    Math.max(Number(mediaPlayerDepth), Number(mountDepth)) +
+    Number(depthVariance);
+  const finalNicheDepth = wallType === "Niche" ? nicheAdjustment : 0;
+  //API Calling
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -94,188 +109,159 @@ const App = () => {
 
     fetchData();
   }, []);
- 
- 
-// Calculate niche depth
-const calculateNicheDepth = () => {
-  return screenDimensions.depth + Math.max(mediaPlayerDepth, mountDepth) + gap;
-};
 
-// Update gap dynamically based on screen size
-useEffect(() => {
-  const gapValue = screenSize < 55 ? 1.5 : 2; // 1.5" for screens under 55", 2" for larger screens
-  setGap(gapValue);
-}, [screenSize]);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
 
-// Function to draw the screen and its configuration on the canvas
-const drawScreen = () => {
-  const canvas = canvasRef.current;
-  if (!canvas) {
-    console.error("Canvas element is not available.");
-    return;
-  }
+    // Clear canvas before redrawing
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  const ctx = canvas.getContext("2d");
-  if (!ctx) {
-    console.error("Canvas context is not available.");
-    return;
-  }
+    // Screen dimensions based on input (assuming screenSize in inches)
+    const screenInches = parseInt(screenSize, 10) || 55; // Default to 55"
+    const scale = 5; // Scale factor for converting inches to pixels
+    const screenWidth =
+      orientation === "Horizontal"
+        ? screenInches * scale
+        : screenInches * scale * 0.75;
+    const screenHeight =
+      orientation === "Horizontal"
+        ? screenInches * scale * 0.75
+        : screenInches * scale;
 
-  // Clear previous drawing
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const screenX = 250;
+    const screenY = 600 - floorDistance; // Adjust position based on floor distance
 
-  // Draw the screen dimensions
-  ctx.fillStyle = "#f0f0f0";
-  ctx.fillRect(50, 50, screenDimensions.width * 10, screenDimensions.height * 10); // Scale factor
+    // Niche Depth Calculation
+    const depthSidePadding = screenInches <= 55 ? 1.5 : 2; // Padding based on screen size
+    const calculatedNicheDepth =
+      screenDepth + Math.max(mediaPlayerDepth, mountDepth) + depthVariance;
 
-  // Draw niche (outer box)
-  ctx.strokeStyle = "#000000";
-  ctx.setLineDash([5, 3]); // Dashed line for niche
-  ctx.lineWidth = 2;
-  ctx.strokeRect(
-    50 - gap * 10,
-    50 - gap * 10,
-    screenDimensions.width * 10 + gap * 20,
-    screenDimensions.height * 10 + gap * 20
-  );
+    // Draw screen rectangle
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(screenX, screenY - screenHeight, screenWidth, screenHeight);
+    ctx.font = "14px Arial";
+    ctx.fillText(
+      `Screen: ${screenModel}`,
+      screenX + 10,
+      screenY - screenHeight - 10
+    );
+    ctx.fillText(
+      `Size: ${screenSize}"`,
+      screenX + 10,
+      screenY - screenHeight + 20
+    );
 
-  // Draw power outlet location (dashed box)
-  ctx.setLineDash([5, 3]);
-  ctx.strokeRect(
-    50 + screenDimensions.width * 5,
-    50 + screenDimensions.height * 5,
-    30, // Width of outlet box
-    30  // Height of outlet box
-  );
+    // Draw niche (outer rectangle for recessed screens)
+    if (wallType === "Niche") {
+      ctx.setLineDash([5, 5]);
+      ctx.strokeStyle = "grey";
+      ctx.strokeRect(
+        screenX - depthSidePadding * scale,
+        screenY - screenHeight - depthSidePadding * scale,
+        screenWidth + 2 * depthSidePadding * scale,
+        screenHeight + 2 * depthSidePadding * scale
+      );
+      ctx.setLineDash([]);
+      ctx.fillText(
+        `Niche Depth: ${calculatedNicheDepth}"`,
+        screenX - 80,
+        screenY - screenHeight / 2
+      );
+    }
 
-  // Draw floor distance to screen center (vertical line)
-  ctx.beginPath();
-  ctx.moveTo(50 + screenDimensions.width * 5, 50);
-  ctx.lineTo(50 + screenDimensions.width * 5, 50 + floorDistance * 10);
-  ctx.strokeStyle = "#FF0000"; // Red line for floor distance
-  ctx.lineWidth = 2;
-  ctx.stroke();
-};
+    // Power outlet (dashed box)
+    ctx.strokeStyle = "blue";
+    ctx.setLineDash([5, 5]);
+    ctx.strokeRect(200, 450, 100, 50);
+    ctx.setLineDash([]);
+    ctx.fillText("Power Outlet", 210, 440);
 
-// Ensure the canvas is available before downloading the PDF
-const handleDownloadPDF = () => {
-  if (!isCanvasReady) {
-    console.error("Canvas element is not ready. Please wait until the canvas is rendered.");
-    return;
-  }
+    // Floor distance line
+    ctx.strokeStyle = "red";
+    ctx.beginPath();
+    ctx.moveTo(screenX + screenWidth / 2, screenY);
+    ctx.lineTo(screenX + screenWidth / 2, 600); // Floor
+    ctx.stroke();
+    ctx.fillText(
+      `Floor Distance: ${floorDistance}"`,
+      screenX + screenWidth / 2 + 10,
+      screenY + 10
+    );
 
-  const canvas = canvasRef.current;
+    setIsCanvasReady(true); // Enable download button
+  }, [
+    screenSize,
+    screenDepth,
+    mediaPlayerDepth,
+    mountDepth,
+    depthVariance,
+    floorDistance,
+    wallType,
+    orientation,
+    screenModel,
+  ]);
 
-  const imgData = canvas.toDataURL("image/png"); // Get image data from canvas
+  const addCanvasBackground = (canvas) => {
+    const ctx = canvas.getContext("2d");
+    ctx.save();
+  
+    // Fill the canvas with a white background
+    ctx.globalCompositeOperation = "destination-over"; // Draw background "under" existing content
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+    ctx.restore();
+  };
+  
 
-  // Create a new jsPDF instance
-  const doc = new jsPDF();
+  const handleDownloadPDF = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-  // Add Project Details
-  doc.text(`Project Title: ${projectTitle}`, 10, 10);
-  doc.text(`Designer: ${designerName}`, 10, 20);
-  doc.text(`Department: ${department}`, 10, 30);
-  doc.text(`Date: ${date}`, 10, 40);
+     // Add white background to the canvas
+  addCanvasBackground(canvas);
+    // Calculate Niche Depth before using it
+    const calculatedNicheDepth =
+      Number(screenDepth) +
+      Math.max(Number(mediaPlayerDepth), Number(mountDepth)) +
+      Number(depthVariance);
 
-  // Add Screen Details
-  doc.text(`Screen Model: ${screenModel}`, 10, 50);
-  doc.text(`Screen Size: ${screenSize}"`, 10, 60);
-  doc.text(`Screen Dimensions: ${screenDimensions.width} x ${screenDimensions.height} inches`, 10, 70);
-  doc.text(`Screen Depth: ${screenDimensions.depth} inches`, 10, 80);
-  doc.text(`Media Player Depth: ${mediaPlayerDepth} inches`, 10, 90);
-  doc.text(`Mount Depth: ${mountDepth} inches`, 10, 100);
-  doc.text(`Gap: ${gap} inches`, 10, 110);
-  doc.text(`Calculated Niche Depth: ${calculateNicheDepth()} inches`, 10, 120);
+    // Initialize jsPDF instance
+    const doc = new jsPDF();
 
-  // Add the canvas image to the PDF
-  doc.addImage(imgData, "PNG", 10, 130, 180, 120); // Adjust image size as needed
+    // Add diagram image from canvas
+    doc.addImage(canvas.toDataURL("image/jpeg"), "JPEG", 10, 20, 180, 130);
 
-  // Save the PDF
-  doc.save(`${projectTitle}-drawing.pdf`);
-};
+    // Add the configuration details
+    doc.setFontSize(12);
+    doc.text("Configuration Details:", 10, 160);
+    doc.text(`Screen Model: ${screenModel}`, 10, 170);
+    doc.text(`Media Player: ${mediaPlayer}`, 10, 180);
+    doc.text(`Mount Type: ${mountType}`, 10, 190);
+    doc.text(`Wall Type: ${wallType}`, 10, 200);
+    doc.text(`Orientation: ${orientation}`, 10, 210);
+    doc.text(`Floor Distance: ${floorDistance}"`, 10, 220);
+    doc.text(`Screen Size: ${screenSize}"`, 10, 230);
+    doc.text(`Screen Depth: ${screenDepth}"`, 10, 240);
+    doc.text(`Media Player Depth: ${mediaPlayerDepth}"`, 10, 250);
+    doc.text(`Mount Depth: ${mountDepth}"`, 10, 260);
+    doc.text(`Depth Variance: ${depthVariance}"`, 10, 270);
 
-// Ensure the canvas is available and drawn on after component mounts or state changes
-useEffect(() => {
-  if (canvasRef.current) {
-    // Only draw when the canvas is available
-    drawScreen();
-    setIsCanvasReady(true); // Mark canvas as ready after drawing
-  }
-}, [screenSize, screenDimensions.depth, gap, floorDistance]); // Trigger redraw when any of these values change
+    // Add the Niche Depth calculation and result
+    doc.text("Niche Depth Calculation:", 10, 280);
+    doc.text(
+      "Niche Depth = Screen Depth + Max(Media Player Depth, Mount Depth) + Depth Variance",
+      10,
+      290
+    );
+    doc.text(`Niche Depth: ${calculatedNicheDepth}"`, 10, 300);
 
-
-  // const handleDownloadPDF = () => {
-  //   const doc = new jsPDF();
-
-  //   // Title of the document
-  //   doc.text("LED Installation Diagram", 20, 20);
-
-  //   // Add user input data
-  //   doc.text(`Project Title: ${projectTitle}`, 20, 30);
-  //   doc.text(`Designer’s Name: ${designerName}`, 20, 40);
-  //   doc.text(`Department: ${department}`, 20, 50);
-  //   doc.text(`Screen Size: ${screenSize}`, 20, 60);
-  //   doc.text(`Screen Model: ${screenModel}`, 20, 70);
-  //   doc.text(`Mount Type: ${mountType}`, 20, 80);
-  //   doc.text(`Media Player: ${mediaPlayer}`, 20, 90);
-  //   doc.text(`Receptacle Box: ${receptacleBox}`, 20, 100);
-  //   doc.text(
-  //     `Distance from Floor to Screen Center: ${distanceToFloor} cm`,
-  //     20,
-  //     110
-  //   );
-  //   doc.text(`Niche Depth: ${nicheDepth} cm`, 20, 120);
-  //   doc.text(`Date: ${date}`, 20, 130);
-
-  //   // Diagram section
-  //   const xStart = 20;
-  //   const yStart = 140;
-
-  //   // Draw the LED screen
-  //   const screenWidth = screenSize ? parseInt(screenSize) * 2 : 100; // Dynamic width
-  //   const screenHeight = 120; // Fixed height
-  //   doc.rect(xStart, yStart, screenWidth, screenHeight);
-  //   doc.text(
-  //     "LED Screen",
-  //     xStart + screenWidth / 2 - 20,
-  //     yStart + screenHeight / 2
-  //   );
-
-  //   // Draw the media player
-  //   const mediaPlayerWidth = mediaPlayer ? 40 : 30; // Dynamic width if mediaPlayer is selected
-  //   const mediaPlayerHeight = mediaPlayer ? 40 : 30; // Dynamic height
-  //   doc.rect(
-  //     xStart + screenWidth - mediaPlayerWidth - 10,
-  //     yStart + screenHeight + 10,
-  //     mediaPlayerWidth,
-  //     mediaPlayerHeight
-  //   );
-  //   doc.text(
-  //     mediaPlayer || "Media Player",
-  //     xStart + screenWidth - mediaPlayerWidth / 2 - 10,
-  //     yStart + screenHeight + 25
-  //   );
-
-  //   // Draw the receptacle box
-  //   const receptacleBoxWidth = receptacleBox ? 30 : 20; // Dynamic width
-  //   const receptacleBoxHeight = receptacleBox ? 30 : 20; // Dynamic height
-  //   doc.setLineDash([5, 5]);
-  //   doc.rect(
-  //     xStart + screenWidth / 2 - receptacleBoxWidth / 2,
-  //     yStart + screenHeight + 60,
-  //     receptacleBoxWidth,
-  //     receptacleBoxHeight
-  //   );
-  //   doc.text(
-  //     receptacleBox || "Receptacle Box",
-  //     xStart + screenWidth / 2 - receptacleBoxWidth / 2,
-  //     yStart + screenHeight + 75
-  //   );
-  //   doc.setLineDash([]);
-
-  //   // Save the PDF
-  //   doc.save("Installation_Diagram.pdf");
-  // };
+    // Save the PDF
+    doc.save("updated_diagram.pdf");
+  };
 
   const uniqueMediaPlayers = [
     ...new Set(mediaPlayerData.map((item) => item["MFGPART"])),
@@ -719,7 +705,6 @@ useEffect(() => {
               margin: "0 auto",
             }}
           >
-            {/* Top Section: Logo, Address, Description */}
             <div
               style={{
                 display: "grid",
@@ -729,7 +714,6 @@ useEffect(() => {
                 gap: "10px",
               }}
             >
-              {/* Logo */}
               <div style={{ textAlign: "center" }}>
                 <img
                   src={logoimg}
@@ -738,7 +722,6 @@ useEffect(() => {
                 />
               </div>
 
-              {/* Address */}
               <div style={{ textAlign: "center", lineHeight: "1.5" }}>
                 <strong>361 Steelcase RD. W, #1,</strong>
                 <br />
@@ -747,7 +730,6 @@ useEffect(() => {
                 Phone: (416) 900-2233
               </div>
 
-              {/* Description */}
               <div
                 style={{
                   textAlign: "center",
@@ -761,138 +743,217 @@ useEffect(() => {
               </div>
             </div>
 
-            {/* Table Section */}
             <div
               style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr 1fr 1fr",
-                textAlign: "center",
-                border: "1px solid #ccc",
+                fontFamily: "Arial, sans-serif",
+                fontSize: "14px",
+                color: "#333",
+                border: "1px solid #d1c3a4",
+                maxWidth: "800px",
+                margin: "0 auto",
+                display: "table",
+                width: "100%",
+                borderCollapse: "collapse",
               }}
             >
-              {/* First Row: Headers */}
-              <div
-                style={{
-                  backgroundColor: "#f6d89b",
-                  fontWeight: "bold",
-                  padding: "10px",
-                  border: "1px solid #ccc",
-                }}
-              >
-                Drawn
-              </div>
-              <div
-                style={{
-                  backgroundColor: "#f6d89b",
-                  fontWeight: "bold",
-                  padding: "10px",
-                  border: "1px solid #ccc",
-                }}
-              >
-                Dimensions In Inches
-              </div>
-              <div
-                style={{
-                  backgroundColor: "#f6d89b",
-                  fontWeight: "bold",
-                  padding: "10px",
-                  border: "1px solid #ccc",
-                }}
-              >
-            
-              </div>
-              <div
-                style={{
-                  backgroundColor: "#f6d89b",
-                  fontWeight: "bold",
-                  padding: "10px",
-                  border: "1px solid #ccc",
-                }}
-              >
-                Screen Size
-              </div>
-
-              {/* Second Row: Content */}
-              <div style={{ padding: "10px", border: "1px solid #ccc" }}>
-                SignCast
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  padding: "10px",
-                  border: "1px solid #ccc",
-                }}
-              >
-                {/* <img
-                  src="https://via.placeholder.com/50"
-                  alt="Dimension Icon"
-                  style={{ width: "50px", height: "auto" }}
-                /> */}
-              </div>
-              <div style={{ padding: "10px", border: "1px solid #ccc" }}>
-                
-              </div>
-              <div style={{ padding: "10px", border: "1px solid #ccc" }}>
-              LG 55” Touch Display
+              {/* Table Header */}
+              <div style={{ display: "table-row" }}>
+                <div
+                  style={{
+                    backgroundColor: "#f6d89b",
+                    fontWeight: "bold",
+                    padding: "10px",
+                    border: "1px solid #ccc",
+                    display: "table-cell",
+                  }}
+                >
+                  Drawn
+                </div>
+                <div
+                  style={{
+                    backgroundColor: "#f6d89b",
+                    fontWeight: "bold",
+                    padding: "10px",
+                    border: "1px solid #ccc",
+                    display: "table-cell",
+                  }}
+                >
+                  Dimensions In Inches
+                </div>
+                <div
+                  style={{
+                    backgroundColor: "#f6d89b",
+                    fontWeight: "bold",
+                    padding: "10px",
+                    border: "1px solid #ccc",
+                    display: "table-cell",
+                  }}
+                >
+                  {/* Empty column for alignment */}
+                </div>
+                <div
+                  style={{
+                    backgroundColor: "#f6d89b",
+                    fontWeight: "bold",
+                    padding: "10px",
+                    border: "1px solid #ccc",
+                    display: "table-cell",
+                  }}
+                >
+                  Screen Size
+                </div>
               </div>
 
-              {/* Third Row */}
-              <div
-                style={{
-                  backgroundColor: "#f6d89b",
-                  fontWeight: "bold",
-                  padding: "10px",
-                  border: "1px solid #ccc",
-                }}
-              >
-                Date
-              </div>
-              <div style={{ padding: "10px",
-               backgroundColor: "#f6d89b",
-                 border: "1px solid #ccc" }}>
-               Sheet
-              </div>
-              <div
-                style={{
-                  backgroundColor: "#f6d89b",
-                  fontWeight: "bold",
-                  padding: "10px",
-                  border: "1px solid #ccc",
-                }}
-              >
-                Revision
-              </div>
-              <div style={{ padding: "10px", 
-               backgroundColor: "#f6d89b",
-                border: "1px solid #ccc" }}>
-Department
+              {/* Table Content Row 1 */}
+              <div style={{ display: "table-row" }}>
+                <div
+                  style={{
+                    padding: "10px",
+                    border: "1px solid #ccc",
+                    display: "table-cell",
+                  }}
+                >
+                  SignCast
+                </div>
+                <div
+                  style={{
+                    padding: "10px",
+                    border: "1px solid #ccc",
+                    display: "table-cell",
+                    textAlign: "center",
+                  }}
+                >
+                  {/* Circular Shape */}
+                  <div
+                    style={{
+                      width: "30px",
+                      height: "30px",
+                      border: "2px solid #333",
+                      borderRadius: "50%",
+                      margin: "0 auto",
+                      position: "relative",
+                    }}
+                  >
+                    <div
+                      style={{
+                        position: "absolute",
+                        width: "50%",
+                        height: "4px",
+                        backgroundColor: "#333",
+                        top: "50%",
+                        left: "0",
+                        transform: "translateY(-50%)",
+                      }}
+                    ></div>
+                  </div>
+                </div>
+                <div
+                  style={{
+                    padding: "10px",
+                    border: "1px solid #ccc",
+                    display: "table-cell",
+                  }}
+                >
+                  {/* Empty column */}
+                </div>
+                <div
+                  style={{
+                    padding: "10px",
+                    border: "1px solid #ccc",
+                    display: "table-cell",
+                  }}
+                >
+                  LG 55” Touch Display
+                </div>
               </div>
 
-              {/* Fourth Row */}
-              <div
-                style={{
-                  // backgroundColor: "#f6d89b",
-                  fontWeight: "bold",
-                  padding: "10px",
-                  border: "1px solid #ccc",
-                }}
-              >
-                17/12/2023
+              {/* Table Header Row 2 */}
+              <div style={{ display: "table-row" }}>
+                <div
+                  style={{
+                    backgroundColor: "#f6d89b",
+                    fontWeight: "bold",
+                    padding: "10px",
+                    border: "1px solid #ccc",
+                    display: "table-cell",
+                  }}
+                >
+                  Date
+                </div>
+                <div
+                  style={{
+                    backgroundColor: "#f6d89b",
+                    fontWeight: "bold",
+                    padding: "10px",
+                    border: "1px solid #ccc",
+                    display: "table-cell",
+                  }}
+                >
+                  Sheet
+                </div>
+                <div
+                  style={{
+                    backgroundColor: "#f6d89b",
+                    fontWeight: "bold",
+                    padding: "10px",
+                    border: "1px solid #ccc",
+                    display: "table-cell",
+                  }}
+                >
+                  Revision
+                </div>
+                <div
+                  style={{
+                    backgroundColor: "#f6d89b",
+                    fontWeight: "bold",
+                    padding: "10px",
+                    border: "1px solid #ccc",
+                    display: "table-cell",
+                  }}
+                >
+                  Department
+                </div>
               </div>
-              <div
-                style={{
-                  padding: "10px",
-                  border: "1px solid #ccc",
-                  gridColumn: "2 / 5",
-                  textAlign: "left",
-                }}
-              >
-                1 of 1
 
+              {/* Table Content Row 2 */}
+              <div style={{ display: "table-row" }}>
+                <div
+                  style={{
+                    padding: "10px",
+                    border: "1px solid #ccc",
+                    display: "table-cell",
+                  }}
+                >
+                  09/12/2023
+                </div>
+                <div
+                  style={{
+                    padding: "10px",
+                    border: "1px solid #ccc",
+                    display: "table-cell",
+                  }}
+                >
+                  1 of 1
+                </div>
+                <div
+                  style={{
+                    padding: "10px",
+                    border: "1px solid #ccc",
+                    display: "table-cell",
+                  }}
+                >
+                  00
+                </div>
+                <div
+                  style={{
+                    padding: "10px",
+                    border: "1px solid #ccc",
+                    display: "table-cell",
+                  }}
+                >
+                  Installations
+                </div>
               </div>
-              
             </div>
           </div>
         </div>
@@ -958,6 +1019,14 @@ Department
             ))}
           </select>
         </div>
+        <div>
+          <label>Depth Variance:</label>
+          <input
+            type="number"
+            value={depthVariance}
+            onChange={(e) => setDepthVariance(Number(e.target.value))}
+          />
+        </div>
         <div className="option-toggle">
           <button
             className={orientation === "Vertical" ? "active" : ""}
@@ -997,6 +1066,7 @@ Department
             <label>Niche Depth Var</label>
             <span>0.5"</span>
           </div>
+         
         </div>
         <div>
           <label>Floor Distance:</label>
@@ -1063,8 +1133,16 @@ Department
             onChange={(e) => setDate(e.target.value)}
           />
         </div>
-        {/* <canvas ref={canvasRef} width={500} height={500}></canvas> */}
-        <button onClick={handleDownloadPDF} disabled={!isCanvasReady}> Download ⤓</button>
+        <canvas
+          ref={canvasRef}
+          width={800}
+          height={600}
+          style={{ display: "none" }}
+        ></canvas>
+        <button onClick={handleDownloadPDF} disabled={!isCanvasReady}>
+          {" "}
+          Download ⤓
+        </button>
       </div>
     </div>
   );
