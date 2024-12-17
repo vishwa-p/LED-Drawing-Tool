@@ -799,7 +799,7 @@ useEffect(() => {
                   border: "1px solid #ccc",
                 }}
               >
-                Screen Size
+            
               </div>
               <div
                 style={{
@@ -809,7 +809,7 @@ useEffect(() => {
                   border: "1px solid #ccc",
                 }}
               >
-                Date
+                Screen Size
               </div>
 
               {/* Second Row: Content */}
@@ -825,17 +825,17 @@ useEffect(() => {
                   border: "1px solid #ccc",
                 }}
               >
-                <img
+                {/* <img
                   src="https://via.placeholder.com/50"
                   alt="Dimension Icon"
                   style={{ width: "50px", height: "auto" }}
-                />
+                /> */}
               </div>
               <div style={{ padding: "10px", border: "1px solid #ccc" }}>
-                LG 55” Touch Display
+                
               </div>
               <div style={{ padding: "10px", border: "1px solid #ccc" }}>
-                09/12/2023
+              LG 55” Touch Display
               </div>
 
               {/* Third Row */}
@@ -847,10 +847,12 @@ useEffect(() => {
                   border: "1px solid #ccc",
                 }}
               >
-                Sheet
+                Date
               </div>
-              <div style={{ padding: "10px", border: "1px solid #ccc" }}>
-                1 of 1
+              <div style={{ padding: "10px",
+               backgroundColor: "#f6d89b",
+                 border: "1px solid #ccc" }}>
+               Sheet
               </div>
               <div
                 style={{
@@ -862,20 +864,22 @@ useEffect(() => {
               >
                 Revision
               </div>
-              <div style={{ padding: "10px", border: "1px solid #ccc" }}>
-                00
+              <div style={{ padding: "10px", 
+               backgroundColor: "#f6d89b",
+                border: "1px solid #ccc" }}>
+Department
               </div>
 
               {/* Fourth Row */}
               <div
                 style={{
-                  backgroundColor: "#f6d89b",
+                  // backgroundColor: "#f6d89b",
                   fontWeight: "bold",
                   padding: "10px",
                   border: "1px solid #ccc",
                 }}
               >
-                Department
+                17/12/2023
               </div>
               <div
                 style={{
@@ -885,8 +889,10 @@ useEffect(() => {
                   textAlign: "left",
                 }}
               >
-                Installations
+                1 of 1
+
               </div>
+              
             </div>
           </div>
         </div>
@@ -1057,7 +1063,7 @@ useEffect(() => {
             onChange={(e) => setDate(e.target.value)}
           />
         </div>
-        <canvas ref={canvasRef} width={500} height={500}></canvas>
+        {/* <canvas ref={canvasRef} width={500} height={500}></canvas> */}
         <button onClick={handleDownloadPDF} disabled={!isCanvasReady}> Download ⤓</button>
       </div>
     </div>
