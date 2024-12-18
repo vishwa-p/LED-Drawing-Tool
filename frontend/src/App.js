@@ -4,25 +4,19 @@ import jsPDF from "jspdf";
 import Papa from "papaparse";
 import "./styles.css";
 import "./App.css";
-import html2canvas from "html2canvas";
+
 import logoimg from "./assets/logo_web-1.png";
 
 const App = () => {
-  // State variables
   const canvasRef = useRef(null);
-  const [screenDimensions, setScreenDimensions] = useState({
-    width: 50,
-    height: 30,
-    depth: 5,
-  });
-  const [gap, setGap] = useState(2);
+
   const [screenModel, setScreenModel] = useState("");
   const [mountType, setMountType] = useState("");
   const [mediaPlayer, setMediaPlayer] = useState("");
   const [receptacleBox, setReceptacleBox] = useState("");
- 
+
   const [projectTitle, setProjectTitle] = useState("");
-  const [screenDepth, setScreenDepth] = useState(3); // Default screen depth
+  const [screenDepth, setScreenDepth] = useState(3);
   const [designerName, setDesignerName] = useState("");
   const [department, setDepartment] = useState("");
   const [screenSize, setScreenSize] = useState(55);
@@ -31,30 +25,17 @@ const App = () => {
   const [date, setDate] = useState("");
   const [mediaPlayerDepth, setMediaPlayerDepth] = useState(3);
   const [mountDepth, setMountDepth] = useState(2);
-  const nicheDepthVar = screenSize > 55 ? 2 : 1.5;
-  // const calculatedNicheDepth = nicheDepth + nicheDepthVar;
-  const [depthVariance, setDepthVariance] = useState(0.5); // Default for under 55"
-  const [isCanvasReady, setIsCanvasReady] = useState(false); // Flag to check if the canvas is ready
 
-  // State to hold parsed data from each API
+  const [depthVariance, setDepthVariance] = useState(0.5);
+  const [isCanvasReady, setIsCanvasReady] = useState(false);
+
   const [pdfData, setPdfData] = useState([]);
   const [mountData, setMountData] = useState([]);
   const [mediaPlayerData, setMediaPlayerData] = useState([]);
   const [receptacleBoxData, setReceptacleBoxData] = useState([]);
-  const [orientation, setOrientation] = useState("Vertical"); // Default to Vertical
-  const [wallType, setWallType] = useState("Flat Wall"); // Default to Flat Wall
+  const [orientation, setOrientation] = useState("Vertical");
+  const [wallType, setWallType] = useState("Flat Wall");
 
-  // const calculatedNicheDepth = screenSize > 55 ? 2 : 1.5; // Default to 1.5" or 2" based on screen size
-
-  const nicheAdjustment =
-    screenDepth + Math.max(mediaPlayerDepth, mountDepth) + depthVariance;
-
-  const calculatedNicheDepth =
-    Number(screenDepth) +
-    Math.max(Number(mediaPlayerDepth), Number(mountDepth)) +
-    Number(depthVariance);
-  const finalNicheDepth = wallType === "Niche" ? nicheAdjustment : 0;
-  //API Calling
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -179,11 +160,10 @@ const App = () => {
     ctx.setLineDash([]);
     ctx.fillText("Power Outlet", 210, 440);
 
-    // Floor distance line
     ctx.strokeStyle = "red";
     ctx.beginPath();
     ctx.moveTo(screenX + screenWidth / 2, screenY);
-    ctx.lineTo(screenX + screenWidth / 2, 600); // Floor
+    ctx.lineTo(screenX + screenWidth / 2, 600);
     ctx.stroke();
     ctx.fillText(
       `Floor Distance: ${floorDistance}"`,
@@ -191,7 +171,7 @@ const App = () => {
       screenY + 10
     );
 
-    setIsCanvasReady(true); // Enable download button
+    setIsCanvasReady(true);
   }, [
     screenSize,
     screenDepth,
@@ -207,35 +187,29 @@ const App = () => {
   const addCanvasBackground = (canvas) => {
     const ctx = canvas.getContext("2d");
     ctx.save();
-  
-    // Fill the canvas with a white background
-    ctx.globalCompositeOperation = "destination-over"; // Draw background "under" existing content
+
+    ctx.globalCompositeOperation = "destination-over";
     ctx.fillStyle = "#FFFFFF";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-  
+
     ctx.restore();
   };
-  
 
   const handleDownloadPDF = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-     // Add white background to the canvas
-  addCanvasBackground(canvas);
-    // Calculate Niche Depth before using it
+    addCanvasBackground(canvas);
+
     const calculatedNicheDepth =
       Number(screenDepth) +
       Math.max(Number(mediaPlayerDepth), Number(mountDepth)) +
       Number(depthVariance);
 
-    // Initialize jsPDF instance
     const doc = new jsPDF();
 
-    // Add diagram image from canvas
     doc.addImage(canvas.toDataURL("image/jpeg"), "JPEG", 10, 20, 180, 130);
 
-    // Add the configuration details
     doc.setFontSize(12);
     doc.text("Configuration Details:", 10, 160);
     doc.text(`Screen Model: ${screenModel}`, 10, 170);
@@ -250,7 +224,6 @@ const App = () => {
     doc.text(`Mount Depth: ${mountDepth}"`, 10, 260);
     doc.text(`Depth Variance: ${depthVariance}"`, 10, 270);
 
-    // Add the Niche Depth calculation and result
     doc.text("Niche Depth Calculation:", 10, 280);
     doc.text(
       "Niche Depth = Screen Depth + Max(Media Player Depth, Mount Depth) + Depth Variance",
@@ -259,7 +232,6 @@ const App = () => {
     );
     doc.text(`Niche Depth: ${calculatedNicheDepth}"`, 10, 300);
 
-    // Save the PDF
     doc.save("updated_diagram.pdf");
   };
 
@@ -270,7 +242,10 @@ const App = () => {
   return (
     <div className="container">
       <div className="large-box" style={{ display: "flex", gap: "20px" }}>
-        <div className="Diagram" style={{ flex: 2, border: "1px solid black", padding: "10px" }}>
+        <div
+          className="Diagram"
+          style={{ flex: 2, border: "1px solid black", padding: "10px" }}
+        >
           <canvas ref={canvasRef} width={500} height={700} />
         </div>
 
@@ -308,7 +283,7 @@ const App = () => {
                   <div
                     style={{
                       flex: 1,
-                      // backgroundColor: "#ddd",
+
                       padding: "5px",
                       textAlign: "center",
                     }}
@@ -336,7 +311,7 @@ const App = () => {
                   <div
                     style={{
                       flex: 1,
-                      // backgroundColor: "#ddd",
+
                       padding: "5px",
                       textAlign: "center",
                     }}
@@ -358,7 +333,7 @@ const App = () => {
                   <div
                     style={{
                       flex: 1,
-                      // backgroundColor: "#ddd",
+
                       padding: "5px",
                       textAlign: "center",
                     }}
@@ -394,7 +369,7 @@ const App = () => {
                   <div
                     style={{
                       flex: 1,
-                      // backgroundColor: "#ddd",
+
                       padding: "5px",
                       textAlign: "center",
                     }}
@@ -422,7 +397,7 @@ const App = () => {
                   <div
                     style={{
                       flex: 1,
-                      // backgroundColor: "#ddd",
+
                       padding: "5px",
                       textAlign: "center",
                     }}
@@ -444,7 +419,7 @@ const App = () => {
                   <div
                     style={{
                       flex: 1,
-                      // backgroundColor: "#ddd",
+
                       padding: "5px",
                       textAlign: "center",
                     }}
@@ -464,10 +439,6 @@ const App = () => {
               <p>Install recessed receptacle box with:</p>
               <p>2x Terminated Power Outlets</p>
               <p>1x Terminated Data CAT5 Ethernet Outlet</p>
-              {/* <ul>
-                <li>2x Terminated Power Outlets</li>
-                <li>1x Terminated Data CAT5 Ethernet Outlet</li>
-              </ul> */}
             </div>
 
             <div
@@ -619,7 +590,6 @@ const App = () => {
                 borderCollapse: "collapse",
               }}
             >
-              {/* Table Header */}
               <div style={{ display: "table-row" }}>
                 <div
                   style={{
@@ -651,9 +621,7 @@ const App = () => {
                     border: "1px solid #ccc",
                     display: "table-cell",
                   }}
-                >
-                  {/* Empty column for alignment */}
-                </div>
+                ></div>
                 <div
                   style={{
                     backgroundColor: "#f6d89b",
@@ -667,7 +635,6 @@ const App = () => {
                 </div>
               </div>
 
-              {/* Table Content Row 1 */}
               <div style={{ display: "table-row" }}>
                 <div
                   style={{
@@ -686,30 +653,16 @@ const App = () => {
                     textAlign: "center",
                   }}
                 >
-                  {/* Circular Shape */}
                   <div
                     style={{
                       width: "30px",
                       height: "30px",
-                      // border: "2px solid #333",
+
                       borderRadius: "50%",
                       margin: "0 auto",
                       position: "relative",
-                      
                     }}
-                  >
-                    {/* <div
-                      style={{
-                        position: "absolute",
-                        width: "50%",
-                        height: "4px",
-                        backgroundColor: "#333",
-                        top: "50%",
-                        left: "0",
-                        transform: "translateY(-50%)",
-                      }}
-                    ></div> */}
-                  </div>
+                  ></div>
                 </div>
                 <div
                   style={{
@@ -717,9 +670,7 @@ const App = () => {
                     border: "1px solid #ccc",
                     display: "table-cell",
                   }}
-                >
-                  {/* Empty column */}
-                </div>
+                ></div>
                 <div
                   style={{
                     padding: "10px",
@@ -731,7 +682,6 @@ const App = () => {
                 </div>
               </div>
 
-              {/* Table Header Row 2 */}
               <div style={{ display: "table-row" }}>
                 <div
                   style={{
@@ -779,7 +729,6 @@ const App = () => {
                 </div>
               </div>
 
-              {/* Table Content Row 2 */}
               <div style={{ display: "table-row" }}>
                 <div
                   style={{
@@ -930,7 +879,6 @@ const App = () => {
             <label>Niche Depth Var</label>
             <span>0.5"</span>
           </div>
-         
         </div>
         <div>
           <label>Floor Distance:</label>
