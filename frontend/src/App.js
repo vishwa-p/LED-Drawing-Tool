@@ -945,12 +945,7 @@ const App = () => {
             onChange={(e) => setDate(e.target.value)}
           />
         </div>
-        <canvas
-          ref={canvasRef}
-          width={800}
-          height={600}
-          style={{ display: "none" }}
-        ></canvas>
+
         <button onClick={handleDownloadPDF} disabled={!isCanvasReady}>
           {" "}
           Download ⤓
